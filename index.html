@@ -1,137 +1,201 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>3C 医学影像系统</title>
-    <style>
-        /* 基础排版 */
-        body { display: flex; font-family: 'Segoe UI', sans-serif; margin: 0; background: #1e1e1e; color: #e0e0e0; height: 100vh; overflow: hidden; }
-        
-        /* 🛑 密码锁登录界面样式 */
-        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; color: #333; }
-        .login-box input { padding: 12px; font-size: 16px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; width: 80%; text-align: center;}
-        .login-box button { padding: 10px 30px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .login-box button:hover { background: #45a049; }
+<meta charset="UTF-8">
+<title>3C 医学影像系统</title>
 
-        /* 系统主界面样式 */
-        #sidebar { width: 260px; background: #252526; padding: 20px; overflow-y: auto; }
-        .menu-item { padding: 10px 15px; margin: 5px 0; background: #333; border-radius: 4px; cursor: pointer; }
-        .menu-item.active, .menu-item:hover { background: #007acc; color: white; }
-        #main { flex: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start; overflow: auto; background: #1e1e1e;}
-        
-        /* 互动图片样式 */
-        .image-container { position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        img { display: block; max-width: 100%; height: auto; }
-        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .shape { pointer-events: auto; cursor: pointer; fill: transparent; stroke: rgba(0, 255, 255, 0.3); stroke-width: 1.5; transition: all 0.2s ease; }
-        .shape:hover { fill: rgba(255, 255, 0, 0.3); stroke: yellow; }
-        .shape.highlight { fill: rgba(255, 0, 0, 0.5); stroke: red; stroke-width: 2.5; }
-    </style>
+<style>
+body {
+    display: flex;
+    margin: 0;
+    font-family: Arial;
+    background: #1e1e1e;
+    color: #eee;
+    height: 100vh;
+}
+
+/* 登录 */
+#loginScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    color: black;
+    text-align: center;
+}
+
+/* 左侧菜单 */
+#sidebar {
+    width: 260px;
+    background: #252526;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.menu-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: #333;
+    cursor: pointer;
+}
+
+.menu-item:hover, .active {
+    background: #007acc;
+}
+
+/* 主区域 */
+#main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container {
+    position: relative;
+}
+
+img {
+    max-width: 90%;
+}
+
+/* SVG */
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.shape {
+    fill: transparent;
+    stroke: cyan;
+    cursor: pointer;
+}
+
+.shape:hover {
+    fill: rgba(255,255,0,0.3);
+}
+</style>
 </head>
+
 <body>
 
-    <!-- 🛑 拦截页面：必须输入密码才消失 -->
-    <div id="loginScreen">
-        <div class="login-box">
-            <h2 style="margin-top: 0;">🔒 3C 医学互动系统</h2>
-            <p style="color: #666;">本项目为加密系统，请输入访问密码</p>
-            <!-- 按回车键也能登录 -->
-            <input type="password" id="pwdInput" placeholder="请输入密码..." onkeydown="if(event.key==='Enter') checkPwd()">
-            <br>
-            <button onclick="checkPwd()">解锁进入</button>
-        </div>
+<!-- 登录 -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔒 医学系统</h2>
+        <input type="password" id="pwd" placeholder="输入密码">
+        <br><br>
+        <button onclick="login()">进入</button>
     </div>
+</div>
 
-    <!-- 左侧菜单栏 -->
-    <div id="sidebar">
-        <h2 style="color: #4CAF50; margin-top:0;">⚕️ 3C 系统目录</h2>
-        <div id="menuList">
-            <div class="menu-item active" onclick="loadImage('手部_掌面.jpg', this)">🖐️ 手部 - 掌面</div>
-            <div class="menu-item" onclick="loadImage('手部_背面.jpg', this)">🖐️ 手部 - 背面</div>
-            <div class="menu-item" onclick="loadImage('上臂_伸侧.png', this)">💪 上臂 - 伸侧</div>
-            <div class="menu-item" onclick="loadImage('上臂_屈侧.png', this)">💪 上臂 - 屈侧</div>
-        </div>
+<!-- 左侧 -->
+<div id="sidebar">
+    <h3>📂 系统目录</h3>
+
+    <!-- 头部 -->
+    <div class="menu-item" onclick="loadImage('head.png', this)">🧠 头部</div>
+
+    <!-- 胸部 -->
+    <div class="menu-item" onclick="loadImage('chest.png', this)">🫁 胸部</div>
+
+    <!-- 腹部 -->
+    <div class="menu-item" onclick="loadImage('abdomen.png', this)">🫃 腹部</div>
+
+    <!-- 手 -->
+    <div class="menu-item active" onclick="loadImage('hand_front.jpg', this)">🖐 手掌</div>
+    <div class="menu-item" onclick="loadImage('hand_back.jpg', this)">🖐 手背</div>
+
+    <!-- 上臂 -->
+    <div class="menu-item" onclick="loadImage('arm_front.png', this)">💪 上臂前</div>
+    <div class="menu-item" onclick="loadImage('arm_back.png', this)">💪 上臂后</div>
+</div>
+
+<!-- 主区域 -->
+<div id="main">
+    <div class="image-container">
+        <p id="loading">请选择部位...</p>
+        <img id="img">
+        <svg id="svg"></svg>
     </div>
+</div>
 
-    <!-- 右侧显示区 -->
-    <div id="main">
-        <div class="image-container">
-            <img src="" id="medImg" alt="图片加载中...">
-            <svg id="overlaySvg"></svg>
-        </div>
-    </div>
+<script>
 
-    <script>
-        // 🔑 1. 密码验证逻辑
-        function checkPwd() {
-            const pwd = document.getElementById('pwdInput').value;
-            // ⚠️ 在这里修改您的密码，目前设为 888888
-            if (pwd === '888888') { 
-                document.getElementById('loginScreen').style.display = 'none'; // 密码正确，隐藏登录框
-                initSystem(); // 正式启动加载图片
-            } else {
-                alert('❌ 密码错误，请重试！');
-            }
+// 登录
+function login(){
+    if(document.getElementById('pwd').value === '888888'){
+        document.getElementById('loginScreen').style.display = 'none';
+    }else{
+        alert('密码错误');
+    }
+}
+
+let data = {};
+
+// 读取JSON
+fetch('shapes_data.json')
+.then(r=>r.json())
+.then(d=>data=d)
+.catch(()=>alert('⚠️ JSON未找到'));
+
+function loadImage(name, el){
+
+    document.getElementById('loading').innerText = "加载中...";
+
+    document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'));
+    if(el) el.classList.add('active');
+
+    let img = document.getElementById('img');
+    let svg = document.getElementById('svg');
+
+    img.src = name;
+
+    img.onload = ()=>{
+        document.getElementById('loading').innerText = "";
+
+        svg.setAttribute("viewBox", `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        draw(name);
+    }
+}
+
+function draw(name){
+    let svg = document.getElementById('svg');
+    svg.innerHTML = "";
+
+    if(!data[name]) return;
+
+    data[name].forEach(s=>{
+        let p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+
+        let str = "";
+        for(let i=0;i<s.coords.length;i+=2){
+            str += s.coords[i]+","+s.coords[i+1]+" ";
         }
 
-        // 2. 核心系统逻辑
-        let globalShapesData = {};
-        const svg = document.getElementById('overlaySvg');
-        const img = document.getElementById('medImg');
+        p.setAttribute("points", str);
+        p.setAttribute("class","shape");
 
-        function initSystem() {
-            fetch('shapes_data.json')
-                .then(response => response.json())
-                .then(data => {
-                    globalShapesData = data;
-                    // 默认加载手部掌面
-                    loadImage('手部_掌面.jpg', document.querySelector('.menu-item.active'));
-                })
-                .catch(error => alert("⚠️ 数据文件未找到！请确保 shapes_data.json 已上传到同一目录！"));
+        p.onclick = ()=>{
+            alert("点击区域 ID: "+s.group_id);
         }
 
-        function loadImage(imageName, menuItemEl) {
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            if(menuItemEl) menuItemEl.classList.add('active');
-            img.src = imageName;
-            img.onload = () => {
-                svg.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
-                drawShapes(imageName);
-            };
-        }
+        svg.appendChild(p);
+    });
+}
 
-        function drawShapes(imageName) {
-            svg.innerHTML = '';
-            const shapes = globalShapesData[imageName];
-            if (!shapes) return;
+</script>
 
-            shapes.forEach(shape => {
-                let svgElement;
-                if (shape.type === 'polygon') {
-                    svgElement = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-                    let pointsStr = "";
-                    for(let i=0; i<shape.coords.length; i+=2) pointsStr += `${shape.coords[i]},${shape.coords[i+1]} `;
-                    svgElement.setAttribute("points", pointsStr.trim());
-                } else if (shape.type === 'rect') {
-                    svgElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                    let x = Math.min(shape.coords[0], shape.coords[2]), y = Math.min(shape.coords[1], shape.coords[3]);
-                    let w = Math.abs(shape.coords[0] - shape.coords[2]), h = Math.abs(shape.coords[1] - shape.coords[3]);
-                    svgElement.setAttribute("x", x).setAttribute("y", y).setAttribute("width", w).setAttribute("height", h);
-                }
-                
-                if(svgElement) {
-                    svgElement.setAttribute("class", "shape");
-                    svgElement.setAttribute("data-group", shape.group_id);
-                    svgElement.onclick = function() {
-                        document.querySelectorAll('.shape').forEach(el => el.classList.remove('highlight'));
-                        const groupId = this.getAttribute('data-group');
-                        document.querySelectorAll(`.shape[data-group="${groupId}"]`).forEach(el => el.classList.add('highlight'));
-                    };
-                    svg.appendChild(svgElement);
-                }
-            });
-        }
-    </script>
 </body>
 </html>
