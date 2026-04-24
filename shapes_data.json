@@ -1,6 +1,23 @@
 {
-  "head_front.jpg": [],
-  "head_side.jpg": [],
+  "head_front.jpg": [
+    {
+      "group_id": "测试区域：左眼",
+      "type": "rect",
+      "coords": [150, 150, 300, 300]
+    },
+    {
+      "group_id": "测试区域：右眼",
+      "type": "rect",
+      "coords": [350, 150, 500, 300]
+    }
+  ],
+  "head_side.jpg": [
+    {
+      "group_id": "测试区域：耳朵",
+      "type": "polygon",
+      "coords": [200, 200, 300, 200, 250, 400]
+    }
+  ],
   "chest_abdomen_front.jpg": [],
   "chest_abdomen_side.jpg": [],
   "chest_abdomen_back.jpg": [],
