@@ -1,59 +1,18 @@
 {
-  "project": "3C-Technique Anatomical Mapping",
-  "categories": [
-    {
-      "category_name": "头部 (Head)",
-      "images": [
-        { "id": "head_front", "filename": "head_front.jpg", "title": "头部正面", "shapes": [] },
-        { "id": "head_side", "filename": "head_side.jpg", "title": "头部侧面", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "躯干 (Trunk)",
-      "images": [
-        { "id": "chest_abdomen_front", "filename": "chest_abdomen_front.jpg", "title": "胸腹部前面", "shapes": [] },
-        { "id": "chest_abdomen_side", "filename": "chest_abdomen_side.jpg", "title": "胸腹部侧面", "shapes": [] },
-        { "id": "chest_abdomen_back", "filename": "chest_abdomen_back.jpg", "title": "背部后面", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "连接关节 (Connecting Joints)",
-      "images": [
-        { "id": "shoulder_hip", "filename": "shoulder_hip.jpg", "title": "肩部与髋部", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "近端肢体 (Proximal Limbs)",
-      "images": [
-        { "id": "arm_thigh_flexor", "filename": "arm_thigh_flexor.png", "title": "臂与大腿 - 屈侧", "shapes": [] },
-        { "id": "arm_thigh_extensor", "filename": "arm_thigh_extensor.png", "title": "臂与大腿 - 伸侧", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "中部关节 (Mid Joints)",
-      "images": [
-        { "id": "elbow_knee", "filename": "elbow_knee.jpg", "title": "肘部与膝部", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "远端肢体 (Distal Limbs)",
-      "images": [
-        { "id": "forearm_crus_flexor", "filename": "forearm_crus_flexor.png", "title": "前臂与小腿 - 屈侧", "shapes": [] },
-        { "id": "forearm_crus_extensor", "filename": "forearm_crus_extensor.png", "title": "前臂与小腿 - 伸侧", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "远端关节 (Distal Joints)",
-      "images": [
-        { "id": "wrist_ankle", "filename": "wrist_ankle.jpg", "title": "腕部与踝部", "shapes": [] }
-      ]
-    },
-    {
-      "category_name": "末端 (Extremities)",
-      "images": [
-        { "id": "hand_foot_palm", "filename": "hand_foot_palm.jpg", "title": "手掌与足底", "shapes": [] },
-        { "id": "hand_foot_dorsal", "filename": "hand_foot_dorsal.jpg", "title": "手背与足背", "shapes": [] }
-      ]
-    }
+  "images": [
+    { "id": "head_front", "filename": "head_front.jpg", "title": "头部正面", "shapes": [] },
+    { "id": "head_side", "filename": "head_side.jpg", "title": "头部侧面", "shapes": [] },
+    { "id": "chest_abdomen_front", "filename": "chest_abdomen_front.jpg", "title": "胸腹部前面", "shapes": [] },
+    { "id": "chest_abdomen_side", "filename": "chest_abdomen_side.jpg", "title": "胸腹部侧面", "shapes": [] },
+    { "id": "chest_abdomen_back", "filename": "chest_abdomen_back.jpg", "title": "背部后面", "shapes": [] },
+    { "id": "shoulder_hip", "filename": "shoulder_hip.jpg", "title": "肩部与髋部", "shapes": [] },
+    { "id": "arm_thigh_flexor", "filename": "arm_thigh_flexor.png", "title": "臂与大腿 (屈侧)", "shapes": [] },
+    { "id": "arm_thigh_extensor", "filename": "arm_thigh_extensor.png", "title": "臂与大腿 (伸侧)", "shapes": [] },
+    { "id": "elbow_knee", "filename": "elbow_knee.jpg", "title": "肘部与膝部", "shapes": [] },
+    { "id": "forearm_crus_flexor", "filename": "forearm_crus_flexor.png", "title": "前臂与小腿 (屈侧)", "shapes": [] },
+    { "id": "forearm_crus_extensor", "filename": "forearm_crus_extensor.png", "title": "前臂与小腿 (伸侧)", "shapes": [] },
+    { "id": "wrist_ankle", "filename": "wrist_ankle.jpg", "title": "腕部与踝部", "shapes": [] },
+    { "id": "hand_foot_palm", "filename": "hand_foot_palm.jpg", "title": "手掌与足底", "shapes": [] },
+    { "id": "hand_foot_dorsal", "filename": "hand_foot_dorsal.jpg", "title": "手背与足背", "shapes": [] }
   ]
 }
