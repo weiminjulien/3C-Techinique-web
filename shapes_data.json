@@ -1,33 +1,9 @@
 {
-  "head_front.jpg": [
+  "hand_foot_palm.jpg": [
     {
-      "group_id": "测试区域：左眼",
+      "group_id": "超级测试框，点我变红！",
       "type": "rect",
-      "coords": [150, 150, 300, 300]
-    },
-    {
-      "group_id": "测试区域：右眼",
-      "type": "rect",
-      "coords": [350, 150, 500, 300]
+      "coords": [0, 0, 1500, 1500]
     }
-  ],
-  "head_side.jpg": [
-    {
-      "group_id": "测试区域：耳朵",
-      "type": "polygon",
-      "coords": [200, 200, 300, 200, 250, 400]
-    }
-  ],
-  "chest_abdomen_front.jpg": [],
-  "chest_abdomen_side.jpg": [],
-  "chest_abdomen_back.jpg": [],
-  "shoulder_hip.jpg": [],
-  "arm_thigh_flexor.png": [],
-  "arm_thigh_extensor.png": [],
-  "elbow_knee.jpg": [],
-  "forearm_crus_flexor.png": [],
-  "forearm_crus_extensor.png": [],
-  "wrist_ankle.jpg": [],
-  "hand_foot_palm.jpg": [],
-  "hand_foot_dorsal.jpg": []
+  ]
 }
