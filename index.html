@@ -1,3 +1,57 @@
+(async function () {
+
+    const SECRET = "YOUR_SECRET_KEYghokDDsCCVgsznvhe25698df";
+
+    function sha256(text) {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+            .then(buf => Array.from(new Uint8Array(buf))
+            .map(b => b.toString(16).padStart(2, '0')).join(''));
+    }
+
+    async function getDeviceId() {
+        const raw = [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + "x" + screen.height,
+            new Date().getTimezoneOffset()
+        ].join("::");
+
+        return await sha256(raw);
+    }
+
+    const deviceId = await getDeviceId();
+    const savedKey = localStorage.getItem("licenseKey");
+
+    const expectedKey = await sha256(deviceId + SECRET);
+
+    if (savedKey !== expectedKey) {
+        // ❗ 未授权 → 阻止页面
+        document.body.innerHTML = `
+            <h2>需要授权</h2>
+            <p>设备码：</p>
+            <textarea style="width:100%;height:80px;">${deviceId}</textarea>
+            <p>请输入激活码：</p>
+            <input id="keyInput" style="width:100%;" />
+            <button onclick="activate()">激活</button>
+        `;
+
+        window.activate = async function () {
+            const input = document.getElementById("keyInput").value;
+            if (input === expectedKey) {
+                localStorage.setItem("licenseKey", input);
+                location.reload();
+            } else {
+                alert("激活码错误");
+            }
+        };
+
+        return; // ❗ 阻止后面代码执行
+    }
+
+    // ✔ 已授权 → 正常继续
+
+})();
+
 <script>
 async function sha256(text) {
     const msgBuffer = new TextEncoder().encode(text);
