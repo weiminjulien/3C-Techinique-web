@@ -1,200 +1,201 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3C 人体测量系统 (Web客户端)</title>
-    <style>
-        body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; background-color: #f0f0f0; overflow: hidden; }
-        #toolbar { background-color: #ffffff; border-bottom: 1px solid #d0d0d0; padding: 6px 15px; display: flex; align-items: center; gap: 10px; z-index: 10; }
-        button { padding: 5px 12px; font-size: 13px; cursor: pointer; border: 1px solid #bbb; border-radius: 3px; background-color: #fff; }
-        button:hover { background-color: #e6e6e6; }
-        select { padding: 4px; font-size: 13px; border: 1px solid #bbb; border-radius: 3px; }
-        #btn-flip.active { background-color: #ffcccc; border-color: #ff9999; }
-        #btn-measure.active { background-color: #ccffcc; border-color: #99ff99; }
-        .zoom-controls { display: flex; align-items: center; gap: 2px; background: #fff; padding: 2px; border: 1px solid #bbb; border-radius: 3px; }
-        .zoom-controls button { border: none; padding: 2px 8px; background: transparent; }
-        #info-text { margin-left: auto; color: #0056b3; font-size: 13px; font-weight: bold; }
-        #main-split { display: flex; flex: 1; overflow: hidden; }
-        #sidebar { width: 220px; background-color: #fafafa; border-right: 1px solid #ccc; overflow-y: auto; padding: 5px 0; font-size: 13px; user-select: none; }
-        details { margin: 0; }
-        summary { cursor: pointer; padding: 4px 8px; color: #333; font-weight: 600; }
-        .tree-item { padding: 4px 8px 4px 24px; cursor: pointer; color: #444; margin: 0; display: flex; align-items: center; }
-        .tree-item.selected { background-color: #005A9E; color: white; }
-        #content-area { flex: 1; background-color: #555; overflow: auto; position: relative; display: flex; justify-content: center; align-items: center; }
-        canvas { display: none; transform-origin: top left; box-shadow: 0 4px 12px rgba(0,0,0,0.4); background-color: white; }
-        iframe { display: none; width: 100%; height: 100%; border: none; background: white; }
-        #error-msg { display: none; color: #ff6b6b; font-size: 16px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 8px; }
-    </style>
+<meta charset="UTF-8">
+<title>3C 医学影像系统</title>
+
+<style>
+body {
+    display: flex;
+    margin: 0;
+    font-family: Arial;
+    background: #1e1e1e;
+    color: #eee;
+    height: 100vh;
+}
+
+/* 登录 */
+#loginScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    color: black;
+    text-align: center;
+}
+
+/* 左侧菜单 */
+#sidebar {
+    width: 260px;
+    background: #252526;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.menu-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: #333;
+    cursor: pointer;
+}
+
+.menu-item:hover, .active {
+    background: #007acc;
+}
+
+/* 主区域 */
+#main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container {
+    position: relative;
+}
+
+img {
+    max-width: 90%;
+}
+
+/* SVG */
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.shape {
+    fill: transparent;
+    stroke: cyan;
+    cursor: pointer;
+}
+
+.shape:hover {
+    fill: rgba(255,255,0,0.3);
+}
+</style>
 </head>
+
 <body>
-    <div id="toolbar">
-        <select id="lang-select"><option value="CN">🇨🇳 简体中文</option><option value="EN">🇬🇧 English</option></select>
-        <button id="btn-flip">↔️ 翻转</button>
-        <button id="btn-measure">📐 测量工具</button>
-        <div class="zoom-controls">
-            <button id="btn-zoom-out">-</button>
-            <span id="lbl-zoom" style="width: 45px; text-align: center; font-size: 12px;">100%</span>
-            <button id="btn-zoom-in">+</button>
-        </div>
-        <span id="info-text">加载中...</span>
+
+<!-- 登录 -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔒 医学系统</h2>
+        <input type="password" id="pwd" placeholder="输入密码">
+        <br><br>
+        <button onclick="login()">进入</button>
     </div>
+</div>
 
-    <div id="main-split">
-        <div id="sidebar"></div>
-        <div id="content-area">
-            <canvas id="canvas"></canvas>
-            <iframe id="pdf-viewer"></iframe>
-            <div id="error-msg"></div>
-        </div>
+<!-- 左侧 -->
+<div id="sidebar">
+    <h3>📂 系统目录</h3>
+
+    <!-- 头部 -->
+    <div class="menu-item" onclick="loadImage('head.png', this)">🧠 头部</div>
+
+    <!-- 胸部 -->
+    <div class="menu-item" onclick="loadImage('chest.png', this)">🫁 胸部</div>
+
+    <!-- 腹部 -->
+    <div class="menu-item" onclick="loadImage('abdomen.png', this)">🫃 腹部</div>
+
+    <!-- 手 -->
+    <div class="menu-item active" onclick="loadImage('hand_front.jpg', this)">🖐 手掌</div>
+    <div class="menu-item" onclick="loadImage('hand_back.jpg', this)">🖐 手背</div>
+
+    <!-- 上臂 -->
+    <div class="menu-item" onclick="loadImage('arm_front.png', this)">💪 上臂前</div>
+    <div class="menu-item" onclick="loadImage('arm_back.png', this)">💪 上臂后</div>
+</div>
+
+<!-- 主区域 -->
+<div id="main">
+    <div class="image-container">
+        <p id="loading">请选择部位...</p>
+        <img id="img">
+        <svg id="svg"></svg>
     </div>
+</div>
 
-    <script>
-        const menuStructure = [
-            { name: "头颈部", children: [ { name: "正面", file: "head_front.jpg" }, { name: "侧面", file: "head_side.jpg" } ] },
-            { name: "胸腹部", children: [ { name: "正面", file: "chest_abdomen_front.jpg" }, { name: "侧面", file: "chest_abdomen_side.jpg" }, { name: "背面", file: "chest_abdomen_back.jpg" } ] },
-            { name: "上肢", children: [ { name: "肩关节", file: "shoulder_hip.jpg" }, { name: "上臂", children: [ { name: "屈侧", file: "arm_thigh_flexor.png" }, { name: "伸侧", file: "arm_thigh_extensor.png" } ] }, { name: "肘关节", file: "elbow_knee.jpg" }, { name: "前臂", children: [ { name: "屈侧", file: "forearm_crus_flexor.png" }, { name: "伸侧", file: "forearm_crus_extensor.png" } ] }, { name: "腕关节", file: "wrist_ankle.jpg" }, { name: "手部", children: [ { name: "掌面", file: "hand_foot_palm.jpg" }, { name: "背侧", file: "hand_foot_dorsal.jpg" } ] } ] },
-            { name: "下肢", children: [ { name: "髋关节", file: "shoulder_hip.jpg" }, { name: "大腿", children: [ { name: "伸侧", file: "arm_thigh_extensor.png" }, { name: "屈侧", file: "arm_thigh_flexor.png" } ] }, { name: "膝关节", file: "elbow_knee.jpg" }, { name: "小腿", children: [ { name: "伸侧", file: "forearm_crus_extensor.png" }, { name: "屈侧", file: "forearm_crus_flexor.png" } ] }, { name: "踝关节", file: "wrist_ankle.jpg" }, { name: "足部", children: [ { name: "背侧", file: "hand_foot_dorsal.jpg" }, { name: "底部", file: "hand_foot_palm.jpg" } ] } ] }
-        ];
+<script>
 
-        let shapesData = {};
-        let isFlipped = false;
-        let measureMode = false;
-        let currentScale = 1.0;
-        let currentFileName = null;
-        let activeGroupId = null;
-        let centerPoint = null;
-        let mousePoint = null;
-        let loadedImage = null;
-        
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+// 登录
+function login(){
+    if(document.getElementById('pwd').value === '888888'){
+        document.getElementById('loginScreen').style.display = 'none';
+    }else{
+        alert('密码错误');
+    }
+}
 
-        async function init() {
-            try {
-                const res = await fetch('shapes_data.json?v=' + new Date().getTime()); // 强制防缓存
-                if (!res.ok) throw new Error("JSON Fetch Failed");
-                shapesData = await res.json();
-                console.log("成功读取到 JSON 数据:", shapesData);
-            } catch (e) { 
-                alert("⚠️ 读取 shapes_data.json 失败！请确认文件已推送到 GitHub 且没有语法错误。"); 
-            }
-            buildMenu();
-            document.getElementById('btn-flip').onclick = () => { isFlipped = !isFlipped; document.getElementById('btn-flip').classList.toggle('active', isFlipped); renderCanvas(); };
-            document.getElementById('btn-measure').onclick = () => { measureMode = !measureMode; document.getElementById('btn-measure').classList.toggle('active', measureMode); activeGroupId = null; renderCanvas(); };
-            document.getElementById('btn-zoom-in').onclick = () => setScale(currentScale * 1.2);
-            document.getElementById('btn-zoom-out').onclick = () => setScale(currentScale * 0.8);
-            canvas.addEventListener('mousedown', onCanvasMouseDown);
-            setTimeout(() => { const firstImg = document.querySelector('.tree-item'); if(firstImg) firstImg.click(); }, 100);
+let data = {};
+
+// 读取JSON
+fetch('shapes_data.json')
+.then(r=>r.json())
+.then(d=>data=d)
+.catch(()=>alert('⚠️ JSON未找到'));
+
+function loadImage(name, el){
+
+    document.getElementById('loading').innerText = "加载中...";
+
+    document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'));
+    if(el) el.classList.add('active');
+
+    let img = document.getElementById('img');
+    let svg = document.getElementById('svg');
+
+    img.src = name;
+
+    img.onload = ()=>{
+        document.getElementById('loading').innerText = "";
+
+        svg.setAttribute("viewBox", `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        draw(name);
+    }
+}
+
+function draw(name){
+    let svg = document.getElementById('svg');
+    svg.innerHTML = "";
+
+    if(!data[name]) return;
+
+    data[name].forEach(s=>{
+        let p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+
+        let str = "";
+        for(let i=0;i<s.coords.length;i+=2){
+            str += s.coords[i]+","+s.coords[i+1]+" ";
         }
 
-        function buildMenu() {
-            const sidebar = document.getElementById('sidebar');
-            function createNode(nodeData, parentElement) {
-                if (nodeData.file) {
-                    const div = document.createElement('div');
-                    div.className = 'tree-item'; div.textContent = nodeData.name;
-                    div.onclick = () => { document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('selected')); div.classList.add('selected'); loadFile(nodeData.file); };
-                    parentElement.appendChild(div);
-                } else if (nodeData.children) {
-                    const details = document.createElement('details'); details.open = true;
-                    const summary = document.createElement('summary'); summary.textContent = nodeData.name;
-                    details.appendChild(summary);
-                    nodeData.children.forEach(child => createNode(child, details));
-                    parentElement.appendChild(details);
-                }
-            }
-            menuStructure.forEach(item => createNode(item, sidebar));
+        p.setAttribute("points", str);
+        p.setAttribute("class","shape");
+
+        p.onclick = ()=>{
+            alert("点击区域 ID: "+s.group_id);
         }
 
-        function loadFile(filename) {
-            currentFileName = filename; activeGroupId = null; measureMode = false; isFlipped = false;
-            document.getElementById('btn-measure').classList.remove('active'); document.getElementById('btn-flip').classList.remove('active');
-            
-            const img = new Image();
-            img.onload = () => {
-                loadedImage = img; canvas.width = img.width; canvas.height = img.height;
-                currentScale = Math.min(800 / img.width, 600 / img.height) * 0.95;
-                setScale(currentScale);
-                canvas.style.display = 'block';
-                document.getElementById('info-text').textContent = "加载成功: " + filename;
-            };
-            img.src = filename;
-        }
+        svg.appendChild(p);
+    });
+}
 
-        function setScale(s) {
-            if (s <= 0.05) s = 0.05; currentScale = s;
-            document.getElementById('lbl-zoom').textContent = Math.round(s * 100) + '%';
-            if(loadedImage) { canvas.style.width = (loadedImage.width * currentScale) + 'px'; canvas.style.height = (loadedImage.height * currentScale) + 'px'; renderCanvas(); }
-        }
+</script>
 
-        function renderCanvas() {
-            if(!loadedImage) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            if (isFlipped) { ctx.scale(-1, 1); ctx.translate(-canvas.width, 0); }
-            ctx.drawImage(loadedImage, 0, 0);
-
-            // ================= 关键更新：透视绘制 =================
-            if (!measureMode && shapesData[currentFileName]) {
-                const shapes = shapesData[currentFileName];
-                shapes.forEach(s => {
-                    const isHovered = (s.group_id === activeGroupId);
-                    
-                    ctx.beginPath();
-                    if (s.type === "rect") {
-                        const x = Math.min(s.coords[0], s.coords[2]); const y = Math.min(s.coords[1], s.coords[3]);
-                        const w = Math.abs(s.coords[2] - s.coords[0]); const h = Math.abs(s.coords[3] - s.coords[1]);
-                        ctx.rect(x, y, w, h);
-                    } else if (s.type === "polygon") {
-                        ctx.moveTo(s.coords[0], s.coords[1]);
-                        for (let i = 2; i < s.coords.length; i += 2) ctx.lineTo(s.coords[i], s.coords[i+1]);
-                        ctx.closePath();
-                    }
-
-                    if (isHovered) {
-                        ctx.fillStyle = "rgba(255, 0, 0, 0.4)"; ctx.fill(); // 点击激活时，变成红色填充
-                        ctx.strokeStyle = "red"; ctx.lineWidth = 3 / currentScale; ctx.stroke();
-                        ctx.fillStyle = "white"; ctx.font = `bold ${24/currentScale}px Arial`; ctx.fillText(s.group_id, s.coords[0], s.coords[1] - 5/currentScale);
-                    } else {
-                        // 未点击时，画出淡蓝色的提示框！(让您知道哪里可以点)
-                        ctx.strokeStyle = "none";
-                        ctx.fillStyle = "transparent";
-                    }
-                });
-            }
-            ctx.restore();
-        }
-
-        function isPointInShape(x, y, shape) {
-            if (shape.type === "rect") {
-                return x >= Math.min(shape.coords[0], shape.coords[2]) && x <= Math.max(shape.coords[0], shape.coords[2]) && y >= Math.min(shape.coords[1], shape.coords[3]) && y <= Math.max(shape.coords[1], shape.coords[3]);
-            } else if (shape.type === "polygon") {
-                let inside = false; const c = shape.coords; let j = c.length - 2;
-                for (let i = 0; i < c.length; i += 2) {
-                    let intersect = ((c[i+1] > y) !== (c[j+1] > y)) && (x < (c[j] - c[i]) * (y - c[i+1]) / (c[j+1] - c[i+1]) + c[i]);
-                    if (intersect) inside = !inside; j = i;
-                } return inside;
-            } return false;
-        }
-
-        function onCanvasMouseDown(e) {
-            if(e.button !== 0 || measureMode) return;
-            const rect = canvas.getBoundingClientRect();
-            let logicX = (e.clientX - rect.left) / currentScale;
-            let logicY = (e.clientY - rect.top) / currentScale;
-            if (isFlipped && loadedImage) logicX = loadedImage.width - logicX;
-
-            const shapes = shapesData[currentFileName] || [];
-            let clickedId = null;
-            for (let shape of shapes) {
-                if (isPointInShape(logicX, logicY, shape)) { clickedId = shape.group_id; break; }
-            }
-            activeGroupId = clickedId;
-            renderCanvas();
-        }
-
-        window.addEventListener('DOMContentLoaded', init);
-    </script>
 </body>
 </html>
