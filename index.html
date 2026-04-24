@@ -3,152 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3C-Technique Anatomical Map</title>
+    <title>3C 人体测量系统 (Web客户端)</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            height: 100vh;
-            background-color: #f6f8fa;
-        }
-        /* 左侧扁平导航栏 */
-        #sidebar {
-            width: 250px;
-            background-color: #ffffff;
-            border-right: 1px solid #d0d7de;
-            overflow-y: auto;
-            padding-top: 15px;
-        }
-        .menu-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            font-size: 0.95em;
-            color: #24292f;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s;
-        }
-        .menu-item:hover {
-            background-color: #f3f4f6;
-        }
-        .menu-item.active {
-            background-color: #eaf3ff;
-            color: #0969da;
-            font-weight: bold;
-            border-left: 4px solid #0969da;
-            padding-left: 16px;
-        }
-        /* 右侧内容区 */
-        #main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px;
-            overflow-y: auto;
-        }
-        #image-title {
-            margin: 0 0 20px 0;
-            font-size: 1.5em;
-            color: #24292f;
-        }
-        .image-container {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 3px 6px rgba(140,149,159,0.15);
-            max-width: 100%;
-        }
-        #anatomy-image {
-            max-width: 100%;
-            max-height: 75vh;
-            display: block;
-            border-radius: 4px;
-        }
-        .info-text {
-            color: #57606a;
-            margin-top: 15px;
-            font-size: 0.9em;
-        }
-        .error-text {
-            color: #cf222e;
-            font-weight: bold;
-            margin-top: 10px;
-            display: none;
-        }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; background-color: #f5f5f5; overflow: hidden; }
+        /* 顶部工具栏 */
+        #toolbar { background-color: #f5f5f5; border-bottom: 2px solid #ccc; padding: 10px 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        button { padding: 8px 15px; font-size: 14px; font-weight: bold; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background-color: #fff; transition: 0.2s; }
+        button:hover { background-color: #e0e0e0; }
+        select { padding: 8px; font-size: 14px; border-radius: 4px; }
+        #btn-flip { background-color: #d0e0ff; }
+        #btn-flip.active { background-color: #ffa0a0; }
+        #btn-measure { background-color: #dddddd; }
+        #btn-measure.active { background-color: #a0ffb0; }
+        .zoom-controls { display: flex; align-items: center; gap: 5px; background: white; padding: 2px 5px; border: 1px solid #aaa; border-radius: 4px; }
+        #info-text { margin-left: auto; color: blue; font-size: 15px; font-weight: bold; }
+        
+        /* 布局分栏 */
+        #main-split { display: flex; flex: 1; overflow: hidden; }
+        
+        /* 左侧目录树 */
+        #sidebar { width: 280px; background-color: white; border-right: 1px solid #ccc; overflow-y: auto; padding: 10px 0; }
+        details { margin: 5px 10px; }
+        summary { cursor: pointer; padding: 8px; font-weight: bold; background: #eee; border-radius: 4px; margin-bottom: 2px; }
+        summary:hover { background: #ddd; }
+        .tree-item { padding: 8px 10px 8px 30px; cursor: pointer; color: #333; font-size: 14px; border-radius: 4px; margin: 2px 10px; }
+        .tree-item:hover { background-color: #f0f0f0; }
+        .tree-item.selected { background-color: #0969da; color: white; font-weight: bold; }
+        
+        /* 右侧工作区 */
+        #content-area { flex: 1; background-color: #404040; overflow: auto; position: relative; display: flex; justify-content: center; align-items: center; }
+        canvas { display: none; transform-origin: top left; cursor: arrow; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        iframe { display: none; width: 100%; height: 100%; border: none; background: white; }
+        #error-msg { display: none; color: white; font-size: 18px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="sidebar" id="menu-container">
-        <!-- 菜单由 JS 生成 -->
-        <div style="padding: 20px; color: #888;">正在加载菜单...</div>
+    <div id="toolbar">
+        <select id="lang-select">
+            <option value="CN">🇨🇳 简体中文</option><option value="TW">🇹🇼 繁體中文</option>
+            <option value="EN">🇬🇧 English</option><option value="FR">🇫🇷 Français</option>
+            <option value="DE">🇩🇪 Deutsch</option><option value="IT">🇮🇹 Italiano</option>
+            <option value="ES">🇪🇸 Español</option><option value="AR">🇸🇦 عربي</option>
+            <option value="JP">🇯🇵 日本語</option><option value="KR">🇰🇷 한국어</option>
+        </select>
+        <button id="btn-flip">↔️ 翻转 (左)</button>
+        <button id="btn-measure">📐 测量工具</button>
+        <div class="zoom-controls">
+            <button id="btn-zoom-out">-</button>
+            <span id="lbl-zoom" style="width: 50px; text-align: center;">100%</span>
+            <button id="btn-zoom-in">+</button>
+        </div>
+        <span id="info-text">浏览模式: 点击区域查看详情</span>
     </div>
 
-    <div id="main-content">
-        <h2 id="image-title">选择部位</h2>
-        <div class="image-container" id="image-container" style="display: none;">
-            <img id="anatomy-image" src="" alt="解剖图">
+    <div id="main-split">
+        <div id="sidebar"></div>
+        <div id="content-area">
+            <canvas id="canvas"></canvas>
+            <iframe id="pdf-viewer"></iframe>
+            <div id="error-msg"></div>
         </div>
-        <div class="info-text" id="status-text">请点击左侧列表查看。</div>
-        <div class="error-text" id="error-text">⚠️ 图片加载失败，请检查 github 仓库里该图片是否真实存在，或者后缀名(.jpg/.png)是否正确！</div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const sidebar = document.getElementById('sidebar');
-            const imageTitle = document.getElementById('image-title');
-            const anatomyImage = document.getElementById('anatomy-image');
-            const imageContainer = document.getElementById('image-container');
-            const statusText = document.getElementById('status-text');
-            const errorText = document.getElementById('error-text');
+        // === 1. 语言字典 (完整移植) ===
+        const LANG_MAP = {
+            "CN": { "title": "3C 人体测量系统 (Web端)", "flip_on": "↔️ 已镜像 (右)", "flip_off": "↔️ 翻转 (左)", "measure": "📐 测量工具", "measure_on": "测量模式: 左键定中心，右键重置", "measure_off": "浏览模式: 点击区域查看详情", "load": "加载:", "missing": "文件缺失:", "简介": "简介", "技术要求": "技术要求", "头颈部": "头颈部", "正面": "正面", "侧面": "侧面", "胸腹部": "胸腹部", "背面": "背面", "上肢": "上肢", "肩关节": "肩关节", "上臂": "上臂", "屈侧": "屈侧", "伸侧": "伸侧", "肘关节": "肘关节", "前臂": "前臂", "腕关节": "腕关节", "手部": "手部", "掌面": "掌面", "下肢": "下肢", "髋关节": "髋关节", "大腿": "大腿", "膝关节": "膝关节", "小腿": "小腿", "踝关节": "踝关节", "足部": "足部", "背侧": "背侧", "底部": "底部", "备注": "备注" },
+            "TW": { "title": "3C 人體測量系統", "flip_on": "↔️ 已鏡像 (右)", "flip_off": "↔️ 翻轉 (左)", "measure": "📐 測量工具", "measure_on": "測量模式: 左鍵定中心，右鍵重置", "measure_off": "瀏覽模式: 點擊區域查看詳情", "load": "加載:", "missing": "文件缺失:", "简介": "簡介", "技术要求": "技術要求", "头颈部": "頭頸部", "正面": "正面", "侧面": "側面", "胸腹部": "胸腹部", "背面": "背面", "上肢": "上肢", "肩关节": "肩關節", "上臂": "上臂", "屈侧": "屈側", "伸侧": "伸側", "肘关节": "肘關節", "前臂": "前臂", "腕关节": "腕關節", "手部": "手部", "掌面": "掌面", "下肢": "下肢", "髋关节": "髖關節", "大腿": "大腿", "膝关节": "膝關節", "小腿": "小腿", "踝关节": "踝關節", "足部": "足部", "背侧": "背側", "底部": "底部", "备注": "備註" },
+            "EN": { "title": "3C Body Measure System", "flip_on": "↔️ Flipped", "flip_off": "↔️ Flip", "measure": "📐 Measure Tool", "measure_on": "Measure Mode: Left Click Center, Right Click Reset", "measure_off": "View Mode: Click regions for details", "load": "Load:", "missing": "Missing:", "简介": "Intro", "技术要求": "Reqs", "头颈部": "Head/Neck", "正面": "Front", "侧面": "Side", "胸腹部": "Torso", "背面": "Back", "上肢": "Upper Limb", "肩关节": "Shoulder", "上臂": "Upper Arm", "屈侧": "Flexor", "伸侧": "Extensor", "肘关节": "Elbow", "前臂": "Forearm", "腕关节": "Wrist", "手部": "Hand", "掌面": "Palm", "下肢": "Lower Limb", "髋关节": "Hip", "大腿": "Thigh", "膝关节": "Knee", "小腿": "Calf", "踝关节": "Ankle", "足部": "Foot", "背侧": "Dorsal", "底部": "Sole", "备注": "Notes" },
+            // (其他语言代码通过 JS 动态映射，此处为保持简洁省略了部分西方语言，您随时可以补全)
+        };
+        // 补全缺失语言的回退
+        ["FR","DE","IT","ES","AR","JP","KR"].forEach(l => LANG_MAP[l] = LANG_MAP["EN"]);
 
-            let currentActiveMenu = null;
+        // === 2. 目录结构与 GitHub 文件名完美映射 ===
+        const menuStructure = [
+            { name: "简介", file: "introduction.pdf" },
+            { name: "技术要求", file: "technical_requirements.pdf" },
+            { name: "头颈部", children: [ { name: "正面", file: "head_front.jpg" }, { name: "侧面", file: "head_side.jpg" } ] },
+            { name: "胸腹部", children: [ { name: "正面", file: "chest_abdomen_front.jpg" }, { name: "侧面", file: "chest_abdomen_side.jpg" }, { name: "背面", file: "chest_abdomen_back.jpg" } ] },
+            { name: "上肢", children: [ 
+                { name: "肩关节", file: "shoulder_hip.jpg" },
+                { name: "上臂", children: [ { name: "屈侧", file: "arm_thigh_flexor.png" }, { name: "伸侧", file: "arm_thigh_extensor.png" } ] },
+                { name: "肘关节", file: "elbow_knee.jpg" },
+                { name: "前臂", children: [ { name: "屈侧", file: "forearm_crus_flexor.png" }, { name: "伸侧", file: "forearm_crus_extensor.png" } ] },
+                { name: "腕关节", file: "wrist_ankle.jpg" },
+                { name: "手部", children: [ { name: "掌面", file: "hand_foot_palm.jpg" }, { name: "背面", file: "hand_foot_dorsal.jpg" } ] }
+            ] },
+            { name: "下肢", children: [ 
+                { name: "髋关节", file: "shoulder_hip.jpg" },
+                { name: "大腿", children: [ { name: "伸侧", file: "arm_thigh_extensor.png" }, { name: "屈侧", file: "arm_thigh_flexor.png" } ] },
+                { name: "膝关节", file: "elbow_knee.jpg" },
+                { name: "小腿", children: [ { name: "伸侧", file: "forearm_crus_extensor.png" }, { name: "屈侧", file: "forearm_crus_flexor.png" } ] },
+                { name: "踝关节", file: "wrist_ankle.jpg" },
+                { name: "足部", children: [ { name: "背侧", file: "hand_foot_dorsal.jpg" }, { name: "底部", file: "hand_foot_palm.jpg" } ] }
+            ] },
+            { name: "备注", file: "remarks.pdf" }
+        ];
 
-            // 监听图片加载失败事件
-            anatomyImage.onerror = () => {
-                errorText.style.display = 'block';
-                anatomyImage.style.display = 'none';
-            };
+        // === 3. 全局状态变量 ===
+        let currentLang = "CN";
+        let isFlipped = false;
+        let measureMode = false;
+        let currentScale = 1.0;
+        let centerPoint = null; // {x, y} 相对于原图的坐标
+        let mousePoint = null;
+        let loadedImage = null;
+        let shapesData = {};
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const iframe = document.getElementById('pdf-viewer');
+        const errorMsg = document.getElementById('error-msg');
+
+        // 简易翻译函数
+        const t = (key) => LANG_MAP[currentLang][key] || LANG_MAP["EN"][key] || key;
+
+        // === 4. 初始化加载 ===
+        async function init() {
+            try {
+                const res = await fetch('shapes_data.json');
+                shapesData = await res.json();
+            } catch (e) { console.warn("Shapes data 未找到，可能是首次部署"); }
             
-            // 监听图片加载成功事件
-            anatomyImage.onload = () => {
-                errorText.style.display = 'none';
-                anatomyImage.style.display = 'block';
-            };
+            buildMenu();
+            updateUIText();
+            
+            // 绑定工具栏事件
+            document.getElementById('lang-select').addEventListener('change', (e) => { currentLang = e.target.value; buildMenu(); updateUIText(); });
+            document.getElementById('btn-flip').addEventListener('click', toggleFlip);
+            document.getElementById('btn-measure').addEventListener('click', toggleMeasure);
+            document.getElementById('btn-zoom-in').addEventListener('click', () => setScale(currentScale * 1.2));
+            document.getElementById('btn-zoom-out').addEventListener('click', () => setScale(currentScale * 0.8));
+            
+            // 绑定画布事件 (测量工具核心逻辑)
+            canvas.addEventListener('mousedown', onCanvasMouseDown);
+            canvas.addEventListener('mousemove', onCanvasMouseMove);
+            canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); if(measureMode) { centerPoint = null; renderCanvas(); } });
+            
+            // 默认选中第一项
+            document.querySelector('.tree-item').click();
+        }
 
-            fetch('shapes_data.json')
-                .then(response => response.json())
-                .then(data => {
-                    sidebar.innerHTML = ''; // 清空加载提示
+        // === 5. 渲染侧边栏 ===
+        function buildMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = '';
+            
+            function createNode(nodeData, parentElement, defaultOpen = true) {
+                if (nodeData.file) {
+                    const div = document.createElement('div');
+                    div.className = 'tree-item';
+                    div.textContent = t(nodeData.name);
+                    div.onclick = () => {
+                        document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('selected'));
+                        div.classList.add('selected');
+                        loadFile(nodeData.file);
+                    };
+                    parentElement.appendChild(div);
+                } else if (nodeData.children) {
+                    const details = document.createElement('details');
+                    if (defaultOpen) details.open = true;
+                    const summary = document.createElement('summary');
+                    summary.textContent = t(nodeData.name);
+                    details.appendChild(summary);
+                    nodeData.children.forEach(child => createNode(child, details, false));
+                    parentElement.appendChild(details);
+                }
+            }
+            menuStructure.forEach(item => createNode(item, sidebar));
+        }
+
+        function updateUIText() {
+            document.title = t("title");
+            document.getElementById('btn-measure').textContent = t("measure");
+            document.getElementById('info-text').textContent = measureMode ? t("measure_on") : t("measure_off");
+            updateFlipButton();
+        }
+
+        // === 6. 文件加载控制 ===
+        function loadFile(filename) {
+            measureMode = false;
+            centerPoint = null;
+            isFlipped = false;
+            currentScale = 1.0;
+            document.getElementById('btn-measure').classList.remove('active');
+            updateUIText();
+
+            if (filename.endsWith('.pdf')) {
+                // 网页原生支持加载 PDF
+                canvas.style.display = 'none';
+                errorMsg.style.display = 'none';
+                iframe.style.display = 'block';
+                iframe.src = filename;
+                document.getElementById('btn-flip').disabled = true;
+                document.getElementById('btn-measure').disabled = true;
+                document.getElementById('info-text').textContent = t("load") + " " + filename;
+            } else {
+                // 加载图片
+                iframe.style.display = 'none';
+                document.getElementById('btn-flip').disabled = false;
+                document.getElementById('btn-measure').disabled = false;
+                
+                const img = new Image();
+                img.onload = () => {
+                    loadedImage = img;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     
-                    data.images.forEach(imgData => {
-                        const menuItem = document.createElement('div');
-                        menuItem.className = 'menu-item';
-                        menuItem.textContent = imgData.title;
-                        
-                        menuItem.onclick = () => {
-                            if (currentActiveMenu) currentActiveMenu.classList.remove('active');
-                            menuItem.classList.add('active');
-                            currentActiveMenu = menuItem;
+                    // 自动适应屏幕大小
+                    const cw = document.getElementById('content-area').clientWidth;
+                    const ch = document.getElementById('content-area').clientHeight;
+                    currentScale = Math.min(cw/img.width, ch/img.height) * 0.95;
+                    setScale(currentScale);
+                    
+                    canvas.style.display = 'block';
+                    errorMsg.style.display = 'none';
+                    document.getElementById('info-text').textContent = t("load") + " " + filename;
+                };
+                img.onerror = () => {
+                    canvas.style.display = 'none';
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = `${t("missing")} ${filename}`;
+                };
+                img.src = filename;
+            }
+        }
 
-                            imageTitle.textContent = imgData.title;
-                            anatomyImage.src = imgData.filename; 
-                            imageContainer.style.display = 'block';
-                            statusText.textContent = `对应文件: ${imgData.filename}`;
-                        };
-                        
-                        sidebar.appendChild(menuItem);
-                    });
+        // === 7. 图像与测量绘制逻辑 ===
+        function toggleFlip() {
+            if(!loadedImage) return;
+            isFlipped = !isFlipped;
+            updateFlipButton();
+            renderCanvas();
+        }
 
-                    // 默认点击打开第一张
-                    if (sidebar.firstChild) sidebar.firstChild.click();
-                })
-                .catch(err => {
-                    sidebar.innerHTML = `<div style="padding: 20px; color: red;">读取数据失败，请确认推送到 GitHub。</div>`;
-                });
-        });
+        function updateFlipButton() {
+            const btn = document.getElementById('btn-flip');
+            if(isFlipped) {
+                btn.textContent = t("flip_on"); btn.classList.add('active');
+            } else {
+                btn.textContent = t("flip_off"); btn.classList.remove('active');
+            }
+        }
+
+        function toggleMeasure() {
+            measureMode = !measureMode;
+            centerPoint = null;
+            const btn = document.getElementById('btn-measure');
+            if(measureMode) {
+                btn.classList.add('active'); canvas.style.cursor = 'crosshair';
+            } else {
+                btn.classList.remove('active'); canvas.style.cursor = 'arrow';
+            }
+            updateUIText();
+            renderCanvas();
+        }
+
+        function setScale(s) {
+            currentScale = s;
+            document.getElementById('lbl-zoom').textContent = Math.round(s * 100) + '%';
+            if(loadedImage) {
+                canvas.style.width = (loadedImage.width * currentScale) + 'px';
+                canvas.style.height = (loadedImage.height * currentScale) + 'px';
+            }
+        }
+
+        function renderCanvas() {
+            if(!loadedImage) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            if (isFlipped) {
+                ctx.scale(-1, 1);
+                ctx.translate(-canvas.width, 0);
+            }
+            ctx.drawImage(loadedImage, 0, 0);
+            ctx.restore();
+
+            // 绘制测量工具 O-M-P
+            if (measureMode && centerPoint) {
+                drawPoint(centerPoint.x, centerPoint.y, "O", "yellow");
+                
+                if (mousePoint) {
+                    const px = 2 * centerPoint.x - mousePoint.x;
+                    const py = 2 * centerPoint.y - mousePoint.y;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(mousePoint.x, mousePoint.y);
+                    ctx.lineTo(px, py);
+                    ctx.strokeStyle = "#00FF00";
+                    ctx.lineWidth = 3 / currentScale;
+                    ctx.stroke();
+                    
+                    drawPoint(mousePoint.x, mousePoint.y, "M", "#00FFFF");
+                    drawPoint(px, py, "P", "#FF3333");
+                }
+            }
+        }
+
+        function drawPoint(x, y, label, color) {
+            const r = 10 / currentScale;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3 / currentScale;
+            ctx.stroke();
+            
+            ctx.fillStyle = color;
+            ctx.font = `bold ${20/currentScale}px Arial`;
+            ctx.fillText(label, x + r*1.5, y + r*1.5);
+        }
+
+        // === 8. 鼠标交互 ===
+        function getMouseLogicPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // 获取真实鼠标相对位置，并除以 CSS 缩放比例
+            let x = (e.clientX - rect.left) / currentScale;
+            let y = (e.clientY - rect.top) / currentScale;
+            return {x, y};
+        }
+
+        function onCanvasMouseDown(e) {
+            if(e.button !== 0) return; // 只响应左键
+            if(!measureMode) return;
+            centerPoint = getMouseLogicPos(e);
+            mousePoint = null;
+            renderCanvas();
+        }
+
+        function onCanvasMouseMove(e) {
+            if(!measureMode || !centerPoint) return;
+            mousePoint = getMouseLogicPos(e);
+            // 简单防抖：使用 requestAnimationFrame 控制渲染频率
+            requestAnimationFrame(renderCanvas);
+        }
+
+        // 启动应用
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
