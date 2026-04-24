@@ -158,8 +158,8 @@
                         ctx.fillStyle = "white"; ctx.font = `bold ${24/currentScale}px Arial`; ctx.fillText(s.group_id, s.coords[0], s.coords[1] - 5/currentScale);
                     } else {
                         // 未点击时，画出淡蓝色的提示框！(让您知道哪里可以点)
-                        ctx.strokeStyle = "rgba(0, 200, 255, 0.6)"; ctx.lineWidth = 2 / currentScale; ctx.stroke();
-                        ctx.fillStyle = "rgba(0, 200, 255, 0.8)"; ctx.font = `${14/currentScale}px Arial`; ctx.fillText("可点击", s.coords[0], s.coords[1] + 20/currentScale);
+                        ctx.strokeStyle = "none";
+                        ctx.fillStyle = "transparent";
                     }
                 });
             }
