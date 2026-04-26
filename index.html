@@ -533,12 +533,11 @@ function toggleFullScreen() {
         btn.innerText = "⛶ 全屏";
     }
 }
-        // ================= 屏幕旋转功能 (纯图标版) =================
-    let isRotated = false;
-    function toggleRotation() {
-        const body = document.body; 
-        body.classList.toggle("mobile-rotated"); 
-    }
-</script>
+    </script>
+        let isRotated = false;
+        function toggleRotation() {
+            document.body.classList.toggle("mobile-rotated"); 
+        }
+    </script>
 </body>
 </html>
