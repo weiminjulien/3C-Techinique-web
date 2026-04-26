@@ -32,6 +32,18 @@
         canvas { display: none; transform-origin: top left; cursor: default; box-shadow: 0 4px 12px rgba(0,0,0,0.4); background-color: white; }
         iframe { display: none; width: 100%; height: 100%; border: none; background: white; }
         #error-msg { display: none; color: #ff6b6b; font-size: 16px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 8px; }
+        /* 强制横屏的 CSS 类 */
+        .mobile-rotated {
+            /* 将元素的中心点移到屏幕正中央，并旋转 90 度 */
+            transform: translate(-50%, -50%) rotate(90deg) !important;
+            /* 关键：宽度变成设备的高度，高度变成设备的宽度！ */
+            width: 100vh !important;  
+            height: 100vw !important; 
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +63,8 @@
             <span id="lbl-zoom" style="width: 45px; text-align: center; font-size: 12px;">100%</span>
             <button id="btn-zoom-in">+</button><button id="fullscreen-btn" onclick="toggleFullScreen()" style="cursor: pointer;">
                 ⛶ 全屏
+            <button id="rotate-btn" onclick="toggleRotation()" style="cursor: pointer; font-size: 1.2em;" title="Rotate">
+                🔃
             </button>
         </div>
         <span id="info-text">加载中...</span>
@@ -439,7 +453,15 @@
         <div id="auth-error">⚠️ 激活码错误，请检查是否输入正确！</div>
     </div>
 </div>
+        // ================= 屏幕旋转功能 (纯图标版) =================
+        let isRotated = false;
 
+        function toggleRotation() {
+            const body = document.body; 
+    
+            // 一键切换：有则删掉，无则加上
+            body.classList.toggle("mobile-rotated"); 
+        }
 <script>
     // ⚠️管理员私钥，必须与 Python 算号器里的完全一致！
     const SECRET_SALT = "My3CSystem2024hggghjklmpo,hg"; 
