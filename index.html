@@ -32,18 +32,6 @@
         canvas { display: none; transform-origin: top left; cursor: default; box-shadow: 0 4px 12px rgba(0,0,0,0.4); background-color: white; }
         iframe { display: none; width: 100%; height: 100%; border: none; background: white; }
         #error-msg { display: none; color: #ff6b6b; font-size: 16px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 8px; }
-        /* 强制横屏的 CSS 类 */
-        .mobile-rotated {
-            /* 将元素的中心点移到屏幕正中央，并旋转 90 度 */
-            transform: translate(-50%, -50%) rotate(90deg) !important;
-            /* 关键：宽度变成设备的高度，高度变成设备的宽度！ */
-            width: 100vh !important;  
-            height: 100vw !important; 
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            overflow: hidden;
-        }
     </style>
 </head>
 <body>
@@ -62,14 +50,11 @@
             <button id="btn-zoom-out">-</button>
             <span id="lbl-zoom" style="width: 45px; text-align: center; font-size: 12px;">100%</span>
             <button id="btn-zoom-in">+</button><button id="fullscreen-btn" onclick="toggleFullScreen()" style="cursor: pointer;">
-                ⛶ 
-            <button id="rotate-btn" onclick="toggleRotation()" style="cursor: pointer; font-size: 1.2em;" title="Rotate">
-                🔃
+                ⛶ 全屏
             </button>
         </div>
         <span id="info-text">加载中...</span>
     </div>
- </div>
 
     <div id="main-split">
         <div id="sidebar"></div>
@@ -84,14 +69,14 @@
         const LANG_MAP = {
             "CN": { "title": "3C 人体测量系统", "flip_on": "↔️ 已镜像", "flip_off": "↔️ 翻转", "measure": "📐 测量工具", "measure_on": "测量模式: 左键中心，右键重置", "measure_off": "浏览模式: 点击区域查看详情", "load": "当前:", "missing": "文件缺失:", "简介": "📄 简介", "技术要求": "📄 技术要求", "头颈部": "📂 头颈部", "正面": "正面", "侧面": "侧面", "胸腹部": "📂 胸腹部", "背面": "背面", "上肢": "📂 上肢", "肩关节": "肩关节", "上臂": "📂 上臂", "屈侧": "屈侧", "伸侧": "伸侧", "肘关节": "肘关节", "前臂": "📂 前臂", "腕关节": "腕关节", "手部": "📂 手部", "掌面": "掌面", "下肢": "📂 下肢", "髋关节": "髋关节", "大腿": "📂 大腿", "膝关节": "膝关节", "小腿": "📂 小腿", "踝关节": "踝关节", "足部": "📂 足部", "背侧": "背侧", "底部": "底部", "备注": "📄 备注" },
             "TW": { "title": "3C 人體測量系統", "flip_on": "↔️ 已鏡像", "flip_off": "↔️ 翻轉", "measure": "📐 測量工具", "measure_on": "測量模式: 左鍵中心，右鍵重置", "measure_off": "瀏覽模式: 點擊區域查看詳情", "load": "當前:", "missing": "文件缺失:", "简介": "📄 簡介", "技术要求": "📄 技術要求", "头颈部": "📂 頭頸部", "正面": "正面", "侧面": "側面", "胸腹部": "📂 胸腹部", "背面": "背面", "上肢": "📂 上肢", "肩关节": "肩關節", "上臂": "📂 上臂", "屈侧": "屈側", "伸侧": "伸側", "肘关节": "肘關節", "前臂": "📂 前臂", "腕关节": "腕關節", "手部": "📂 手部", "掌面": "掌面", "下肢": "📂 下肢", "髋关节": "髖關節", "大腿": "📂 大腿", "膝关节": "膝關節", "小腿": "📂 小腿", "踝关节": "踝關節", "足部": "📂 足部", "背侧": "背側", "底部": "底部", "备注": "📄 備註" },
-            "EN": { "title": "3C Measure System", "flip_on": "↔️ Flipped", "flip_off": "↔️ Flip", "measure": "📐 Measure", "measure_on": "Measure Mode: L-Click Center, R-Click Reset", "measure_off": "View Mode: Click regions for details", "load": "Loaded:", "missing": "Missing:", "简介": "📄 Intro", "技术要求": "📄 Reqs", "头颈部": "📂 Head/Neck", "正面": "Front", "侧面": "Side", "胸腹部": "📂 Torso", "背面": "Back", "上肢": "📂 Upper Limb", "肩关节": "Shoulder", "上臂": "📂 Upper Arm", "屈侧": "Flexor", "伸侧": "Extensor", "肘关节": "Elbow", "前臂": "📂 Forearm", "腕关节": "Wrist", "手部": "📂 Hand", "掌面": "Palm", "下肢": "📂 Lower Limb", "髋关节": "Hip", "大腿": "📂 Thigh", "膝关节": "Knee", "小腿": "📂 Calf", "踝关节": "Ankle", "足部": "📂 Foot", "背侧": "Dorsal", "底部": "Sole", "备注": "📄 Notes" },
+            "EN": { "title": "3C Measure System", "flip_on": "↔️ Flipped", "flip_off": "↔️ Flip", "measure": "📐 Measure", "measure_on": "Measure Mode: L-Click Center, R-Click Reset", "measure_off": "View Mode: Click regions for details", "load": "Loaded:", "missing": "Missing:", "简介": "📄 Introduction", "技术要求": "📄 Technical requirements", "头颈部": "📂 Head/Neck", "正面": "Front", "侧面": "Side", "胸腹部": "📂 Torso", "背面": "Back", "上肢": "📂 Upper Limb", "肩关节": "Shoulder", "上臂": "📂 Upper Arm", "屈侧": "Flexor", "伸侧": "Extensor", "肘关节": "Elbow", "前臂": "📂 Forearm", "腕关节": "Wrist", "手部": "📂 Hand", "掌面": "Palm", "下肢": "📂 Lower Limb", "髋关节": "Hip", "大腿": "📂 Thigh", "膝关节": "Knee", "小腿": "📂 Calf", "踝关节": "Ankle", "足部": "📂 Foot", "背侧": "Dorsal", "底部": "Sole", "备注": "📄 Notes" },
             "FR": { "title": "3C Mesure Systeme", "flip_on": "↔️ Renversé", "flip_off": "↔️ Reverser", "measure": "📐 Mesure", "measure_on": "Mesure Mode: G-Clique Center, D-Clique Réinitialiser", "measure_off": "Voir Mode: Cliquez régions pour détails", "load": "Chargée:", "missing": "Manquante:", "简介": "📄 Introduction", "技术要求": "📄 Exigences techniques", "头颈部": "📂 Tête/Cou", "正面": "Face", "侧面": "Profil", "胸腹部": "📂 Torse", "背面": "Arrière", "上肢": "📂 Membre supérieur", "肩关节": "Epaule", "上臂": "📂 Bras", "屈侧": "Flexor", "伸侧": "Extensor", "肘关节": "Coude", "前臂": "📂 Avant-bras", "腕关节": "Poignet", "手部": "📂 Main", "掌面": "Palmaire", "下肢": "📂 Membre inférieur", "髋关节": "Hanche", "大腿": "📂 Cuisse", "膝关节": "Genou", "小腿": "📂 Jambe", "踝关节": "Cheville", "足部": "📂 Pied", "背侧": "Dorsal", "底部": "Plantaire", "备注": "📄 Notes" },
             "DE": { "title": "3C Messsystem", "flip_on": "↔️ Gespiegelt", "flip_off": "↔️ Spiegeln", "measure": "📐 Messen", "measure_on": "Messmodus: L-Klick Mitte, R-Klick Zurücksetzen", "measure_off": "Ansichtsmodus: Bereiche für Details anklicken", "load": "Geladen:", "missing": "Fehlend:", "简介": "📄 Einführung", "技术要求": "📄 Technische Anforderungen", "头颈部": "📂 Kopf/Hals", "正面": "Vorne", "侧面": "Seite", "胸腹部": "📂 Rumpf", "背面": "Hinten", "上肢": "📂 Obere Extremität", "肩关节": "Schulter", "上臂": "📂 Oberarm", "屈侧": "Beugeseite", "伸侧": "Streckseite", "肘关节": "Ellenbogen", "前臂": "📂 Unterarm", "腕关节": "Handgelenk", "手部": "📂 Hand", "掌面": "Handfläche", "下肢": "📂 Untere Extremität", "髋关节": "Hüfte", "大腿": "📂 Oberschenkel", "膝关节": "Knie", "小腿": "📂 Unterschenkel", "踝关节": "Knöchel", "足部": "📂 Fuß", "背侧": "Fußrücken", "底部": "Fußsohle", "备注": "📄 Notizen" },
             "ES": { "title": "Sistema de Medición 3C", "flip_on": "↔️ Volteado", "flip_off": "↔️ Voltear", "measure": "📐 Medir", "measure_on": "Modo Medición: Clic-I Centro, Clic-D Reiniciar", "measure_off": "Modo Vista: Clic en regiones para detalles", "load": "Cargado:", "missing": "Falta:", "简介": "📄 Introducción", "技术要求": "📄 Requisitos técnicos", "头颈部": "📂 Cabeza/Cuello", "正面": "Frente", "侧面": "Lado", "胸腹部": "📂 Torso", "背面": "Espalda", "上肢": "📂 Miembro superior", "肩关节": "Hombro", "上臂": "📂 Brazo", "屈侧": "Flexor", "伸侧": "Extensor", "肘关节": "Codo", "前臂": "📂 Antebrazo", "腕关节": "Muñeca", "手部": "📂 Mano", "掌面": "Palma", "下肢": "📂 Miembro inferior", "髋关节": "Cadera", "大腿": "📂 Muslo", "膝关节": "Rodilla", "小腿": "📂 Pierna", "踝关节": "Tobillo", "足部": "📂 Pie", "背侧": "Dorsal", "底部": "Planta", "备注": "📄 Notas" },
             "IT": { "title": "Sistema di Misurazione 3C", "flip_on": "↔️ Capovolto", "flip_off": "↔️ Capovolgi", "measure": "📐 Misura", "measure_on": "Modo Misura: Clic-S Centro, Clic-D Ripristina", "measure_off": "Modo Vista: Clicca le regioni per dettagli", "load": "Caricato:", "missing": "Mancante:", "简介": "📄 Introduzione", "技术要求": "📄 Requisiti tecnici", "头颈部": "📂 Testa/Collo", "正面": "Fronte", "侧面": "Profilo", "胸腹部": "📂 Busto", "背面": "Schiena", "上肢": "📂 Arto superiore", "肩关节": "Spalla", "上臂": "📂 Braccio", "屈侧": "Flessore", "伸侧": "Estensore", "肘关节": "Gomito", "前臂": "📂 Avambraccio", "腕关节": "Polso", "手部": "📂 Mano", "掌面": "Palmo", "下肢": "📂 Arto inferiore", "髋关节": "Anca", "大腿": "📂 Coscia", "膝关节": "Ginocchio", "小腿": "📂 Polpaccio", "踝关节": "Caviglia", "足部": "📂 Piede", "背侧": "Dorsale", "底部": "Pianta", "备注": "📄 Note" },
             "AR": { "title": "نظام قياس 3C", "flip_on": "↔️ معكوس", "flip_off": "↔️ عكس", "measure": "📐 قياس", "measure_on": "وضع القياس: نقر أيسر للمركز، نقر أيمن لإعادة التعيين", "measure_off": "وضع العرض: انقر على المناطق للتفاصيل", "load": "تم التحميل:", "missing": "مفقود:", "简介": "📄 مقدمة", "技术要求": "📄 المتطلبات الفنية", "头颈部": "📂 الرأس/الرقبة", "正面": "أمامي", "侧面": "جانبي", "胸腹部": "📂 الجذع", "背面": "خلفي", "上肢": "📂 الطرف العلوي", "肩关节": "الكتف", "上臂": "📂 العضد", "屈侧": "مثنية", "伸侧": "باسطة", "肘关节": "المرفق", "前臂": "📂 الساعد", "腕关节": "المعصم", "手部": "📂 اليد", "掌面": "راحة اليد", "下肢": "📂 الطرف السفلي", "髋关节": "الورك", "大腿": "📂 الفخذ", "膝关节": "الركبة", "小腿": "📂 الساق", "踝关节": "الكاحل", "足部": "📂 القدم", "背侧": "ظهري", "底部": "أخمص القدم", "备注": "📄 ملاحظات" },
             "JA": { "title": "3C 測定システム", "flip_on": "↔️ 反転済み", "flip_off": "↔️ 反転", "measure": "📐 測定", "measure_on": "測定モード: 左クリックで中心、右クリックでリセット", "measure_off": "表示モード: 領域をクリックして詳細を表示", "load": "読み込み済:", "missing": "未検出:", "简介": "📄 はじめに", "技术要求": "📄 技術要件", "头颈部": "📂 頭/頸部", "正面": "正面", "侧面": "側面", "胸腹部": "📂 胴体", "背面": "背面", "上肢": "📂 上肢", "肩关节": "肩", "上臂": "📂 上腕", "屈侧": "屈側", "伸侧": "伸側", "肘关节": "肘", "前臂": "📂 前腕", "腕关节": "手首", "手部": "📂 手", "掌面": "掌側", "下肢": "📂 下肢", "髋关节": "股関節", "大腿": "📂 大腿", "膝关节": "膝", "小腿": "📂 下腿", "踝关节": "足首", "足部": "📂 足", "背侧": "足背", "底部": "足底", "备注": "📄 備考" },
-            "KO": { "title": "3C 측정 시스템", "flip_on": "↔️ 반전됨", "flip_off": "↔️ 반전", "measure": "📐 측정", "measure_on": "측정 모드: 좌클릭 중심 설정, 우클릭 초기화", "measure_off": "보기 모드: 영역 클릭하여 상세 보기", "load": "불러옴:", "missing": "누락됨:", "简介": "📄 소개", "技术要求": "📄 기술 요구 사항", "头颈部": "📂 머리/목", "正面": "정면", "侧面": "측면", "胸腹部": "📂 몸통", "背面": "후면", "上肢": "📂 상지", "肩关节": "어깨", "上臂": "📂 상완", "屈侧": "굴측", "伸侧": "신측", "肘关节": "팔꿈치", "前臂": "📂 전완", "腕关节": "손목", "手部": "📂 손", "掌面": "손바닥", "下肢": "📂 하지", "髋关节": "고관절", "大腿": "📂 대퇴", "膝关节": "무릎", "小腿": "📂 하퇴", "踝关节": "발목", "足部": "📂 발", "背侧": "발등", "底部": "발바닥", "备注": "📄 참고" }        
+            "KO": { "title": "3C 측정 시스템", "flip_on": "↔️ 반전됨", "flip_off": "↔️ 반전", "measure": "📐 측정", "measure_on": "측정 모드: 좌클릭 중심 설정, 우클릭 초기화", "measure_off": "보기 모드: 영역 클릭하여 상세 보기", "load": "불러옴:", "missing": "누락됨:", "简介": "📄 소개", "技术要求": "📄 기술 요구 사항", "头颈部": "📂 머리/목", "正面": "정면", "侧面": "측면", "胸腹部": "📂 몸통", "背面": "후면", "上肢": "📂 상지", "肩关节": "어깨", "上臂": "📂 상완", "屈侧": "굴측", "伸侧": "신측", "肘关节": "팔꿈치", "前臂": "📂 전완", "腕关节": "손목", "手部": "📂 손", "掌面": "손바닥", "下肢": "📂 하지", "髋关节": "고관절", "大腿": "📂 대퇴", "膝关节": "무릎", "小腿": "📂 하퇴", "踝关节": "발목", "足部": "📂 발", "背侧": "발등", "底部": "발바닥", "备注": "📄 참고" }
         };
 
         const menuStructure = [
@@ -432,27 +417,6 @@
         window.addEventListener('DOMContentLoaded', init);
     </script>
 
-    <!-- ================= 授权锁遮罩层 (无损植入) ================= -->
-<style>
-    #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 99999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; }
-    .auth-box { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
-    .auth-box h2 { margin-top: 0; letter-spacing: 2px; }
-    .auth-box input { padding: 12px; margin: 15px 0; width: 250px; text-align: center; font-size: 16px; border-radius: 4px; border: none; outline: none; font-weight: bold; }
-    .auth-box button { background: #0969da; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .auth-box button:hover { background: #005cc5; }
-    #auth-error { color: #ff7675; margin-top: 15px; display: none; font-weight: bold; }
-</style>
-
-<div id="auth-overlay">
-    <div class="auth-box">
-        <h2>3C 系统需授权访问</h2>
-        <p style="color:#ddd; font-size:14px;">请将下方设备码发给管理员获取激活码</p>
-        <p style="font-size: 18px;">设备码：<b id="display-device-id" style="color:#00ffff; user-select:all; cursor: pointer;" title="双击复制"></b></p>
-        <input type="text" id="key-input" placeholder="请输入激活码" onkeypress="if(event.keyCode==13) verifyKey()">
-        <br>
-        <button onclick="verifyKey()">激活系统</button>
-        <div id="auth-error">⚠️ 激活码错误，请检查是否输入正确！</div>
-    </div>
 <script>
     // ⚠️管理员私钥，必须与 Python 算号器里的完全一致！
     const SECRET_SALT = "My3CSystem2024hggghjklmpo,hg"; 
@@ -534,11 +498,7 @@ function toggleFullScreen() {
         btn.innerText = "⛶ 全屏";
     }
 }
-    </script>
-        let isRotated = false;
-        function toggleRotation() {
-            document.body.classList.toggle("mobile-rotated"); 
-        }
-    </script>
+</script>
+
 </body>
 </html>
