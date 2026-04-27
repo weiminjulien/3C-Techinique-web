@@ -159,6 +159,22 @@
                 if(measureMode) { centerPoint = null; renderCanvas(); }
             });
             
+            function touchToMouse(e, actionHandler) {
+            e.preventDefault();  // 阻隔断截老手机下搓页被拖屏放大误行！这是极其大灵妙杀招神手印护防墙。
+            // 当这没左实木右软键盘去压屏取信息这用手机法摸的第一位置。假伪充进原核心！老计算芯受下执行！全救回来全无不漏发点。 
+            const touch = e.touches[0] || e.changedTouches[0];
+            if(touch) {
+                 e.clientX = touch.clientX;
+                 e.clientY = touch.clientY;
+            }
+            e.button = 0;   // （关键药引！）这等于拿伪硬塞的"骗证件左鼠标码 0 "蒙换塞过了你们底楼要求通缉拦堵卡，保证下面执行绿灯发。
+            actionHandler(e);
+        }
+
+        // 开办收押转达专门接待热路子。触手机压去送代为跑：   
+        canvas.addEventListener('touchstart', (e) => touchToMouse(e, onCanvasMouseDown), { passive: false });
+        canvas.addEventListener('touchmove', (e) => touchToMouse(e, onCanvasMouseMove), { passive: false });
+        
             // 自动选中第一张图片
             setTimeout(() => {
                 const firstImgItem = document.querySelectorAll('.tree-item')[2]; 
@@ -359,14 +375,28 @@
             ctx.fillText(label, x + r*1.2, y + r*1.2);
         }
 
-        // ==========================================
-        // 碰撞检测与鼠标交互
-        // ==========================================
         function getMouseLogicPos(e) {
             const rect = canvas.getBoundingClientRect();
-            let x = (e.clientX - rect.left) / currentScale;
-            let y = (e.clientY - rect.top) / currentScale;
-            // 如果图片被镜像翻转了，需要把逻辑坐标也反转回来，才能精准匹配原本的标注框
+            
+            // 我们拿到不论老桌脑与触滑拿屏最初步实报相减距离屏左右位真实的原始离距：（这是外端绝对准绳无涉旋变位！没问题基础）
+            let physDX = e.clientX - rect.left;
+            let physDY = e.clientY - rect.top;
+            
+            let rawLogicX = physDX;
+            let rawLogicY = physDY;
+
+            // ⚠️这是专门补天定轴大法的法器——逆心决阵眼阵。一旦探测手机发生打翻过变旋转过这壳（就是带有这个特牌。一切向将强逆运算打直打回去补还！）
+            if (document.body.classList.contains("mobile-rotated")) {
+                // (这是手机因宽当高度拿竖框躺在横拿下被你强暴转视扭乱后产生的时空：我们直接在这将其逆向轴调补！) 此时的真 Y其实反映着物理 X！原顶右实则成了框身真底下底座厚长度拿。全部完美化化推合无误差缝线合出真点：
+                rawLogicX = physDY; 
+                rawLogicY = rect.width - physDX; 
+            }
+            
+            // 后做照常用常你们从老款前带过的正法放大折解归心位数定数比化
+            let x = rawLogicX / currentScale;
+            let y = rawLogicY / currentScale;
+
+            // (这保本全不变留）在遇了上面工具如果真使用到了照转相图法！要相辅配合着还原！不动一分，完美融合生效全保留法
             if (isFlipped && loadedImage) {
                 x = loadedImage.width - x;
             }
