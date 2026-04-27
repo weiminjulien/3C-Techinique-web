@@ -511,27 +511,25 @@ function toggleFullScreen() {
         // 恢复按钮文字
         btn.innerText = "⛶";
     }
-        // ================= 屏幕旋转功能 =================
-        let isRotated = false;
+<script>
+    // 这是专属于我们的独立转动程序包
+    let isRotated = false;
 
-        function toggleRotation() {
-            // 获取整个网页的主体
-            const body = document.body; 
-            const btn = document.getElementById("rotate-btn");
-    
-            isRotated = !isRotated; // 切换状态
-    
-            if (isRotated) {
-        // 开启旋转
-        body.classList.add("mobile-rotated");
-        btn.innerText = "↺ 90°";
-    } else {
-        // 关闭旋转
-        body.classList.remove("mobile-rotated");
-        btn.innerText = "↻ 90°";
+    function toggleRotation() {
+        const body = document.body;
+        // 获取你的纯字符小弯按钮！(您确认它之前名叫这个名没丢哈？)
+        const rotateBtn = document.getElementById("rotate-btn");
+        
+        isRotated = !isRotated; 
+
+        if (isRotated) {
+            body.classList.add("mobile-rotated");
+            if (rotateBtn) rotateBtn.innerText = "↺ 90°";
+        } else {
+            body.classList.remove("mobile-rotated");
+            if (rotateBtn) rotateBtn.innerText = "↻ 90°";
+        }
     }
-}
-}
 </script>
     
 </body>
