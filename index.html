@@ -50,7 +50,7 @@
             <button id="btn-zoom-out">-</button>
             <span id="lbl-zoom" style="width: 45px; text-align: center; font-size: 12px;">100%</span>
             <button id="btn-zoom-in">+</button><button id="fullscreen-btn" onclick="toggleFullScreen()" style="cursor: pointer;">
-                ⛶ 全屏
+                ⛶ 
             </button>
         </div>
         <span id="info-text">加载中...</span>
@@ -481,7 +481,7 @@ function toggleFullScreen() {
             docElm.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
         // 改变按钮文字
-        btn.innerText = "✖ 退出全屏";
+        btn.innerText = "🗗";
         
     } else {
         // 【退出全屏】
@@ -495,7 +495,7 @@ function toggleFullScreen() {
             document.webkitExitFullscreen();
         }
         // 恢复按钮文字
-        btn.innerText = "⛶ 全屏";
+        btn.innerText = "⛶";
     }
 }
 </script>
